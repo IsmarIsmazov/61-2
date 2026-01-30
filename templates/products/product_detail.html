@@ -1,5 +1,8 @@
-{% for product in products %}
-<div class="product" >
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div style="width: auto;">
     <p>
         {{ product.name }}
     </p>
@@ -10,4 +13,5 @@
         {{ product.price }}
     </p>
 </div>
-{% endfor %}
+
+{% endblock %}

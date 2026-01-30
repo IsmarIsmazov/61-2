@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "ru"
 
-TIME_ZONE = "UTC"  # +0
+TIME_ZONE = "Asia/Bishkek"  # +0
 # Kyrg = +6
 USE_I18N = True
 

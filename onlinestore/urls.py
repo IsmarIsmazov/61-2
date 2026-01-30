@@ -18,10 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from product.views import index, product_list
+from product.views import base, product_detail, product_list
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("index/", index),
-    path("product/", product_list),
+    path("", base),
+    path("products/", product_list),
+    path("products/<int:product_id>/", product_detail),
 ]
