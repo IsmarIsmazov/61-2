@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
-from product.models import Product
+from product.models import Category, Product
 
 # select * from product;
 # Product.objects.all()
@@ -23,14 +23,37 @@ from product.models import Product
 
 
 def product_list(request):
-    products = Product.objects.all()
-    return render(request, "products/product_list.html", context={"products": products})
+    if request.method == "GET":
+        products = Product.objects.all()
+        category_id = request.GET.get("category_id")
+        if category_id:
+            products = Product.objects.filter(category_id=category_id)
+        return render(
+            request, "products/product_list.html", context={"products": products}
+        )
 
 
 def product_detail(request, product_id):
-    product = Product.objects.get(id=product_id)
-    return render(request, "products/product_detail.html", context={"product": product})
+    if request.method == "GET":
+        product = Product.objects.get(id=product_id)
+        return render(
+            request, "products/product_detail.html", context={"product": product}
+        )
+
+
+def product_create(request):
+    if request.method == "GET":
+        return render(request, "products/product_create.html")
+    elif request.method == "POST":
+        print(request.POST)
+        Product.objects.create(
+            name=request.POST.get("name"),
+            description=request.POST.get("description"),
+        )
+        return redirect("/products/")
 
 
 def base(request):
-    return render(request, "base.html")
+    if request.method == "GET":
+        categories = Category.objects.all()
+        return render(request, "base.html", context={"categories": categories})
