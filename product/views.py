@@ -1,5 +1,8 @@
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
+from product.forms import CreateProductForm
 from product.models import Category, Product
 
 # select * from product;
@@ -19,9 +22,9 @@ from product.models import Category, Product
 
 # Product.objects.update(price=1000) - изменение всех продуктов
 
+
 # Product.objects.delete()
-
-
+@login_required(login_url="/login/")
 def product_list(request):
     if request.method == "GET":
         products = Product.objects.all()
@@ -33,6 +36,7 @@ def product_list(request):
         )
 
 
+@login_required(login_url="/login/")
 def product_detail(request, product_id):
     if request.method == "GET":
         product = Product.objects.get(id=product_id)
@@ -41,16 +45,22 @@ def product_detail(request, product_id):
         )
 
 
+@login_required(login_url="/login/")
 def product_create(request):
     if request.method == "GET":
-        return render(request, "products/product_create.html")
+        forms = CreateProductForm()
+        return render(request, "products/product_create.html", context={"forms": forms})
     elif request.method == "POST":
-        print(request.POST)
-        Product.objects.create(
-            name=request.POST.get("name"),
-            description=request.POST.get("description"),
-        )
-        return redirect("/products/")
+        forms = CreateProductForm(request.POST, request.FILES)
+        if forms.is_valid():
+            Product.objects.create(
+                name=forms.cleaned_data.get("name"),
+                description=forms.cleaned_data.get("description"),
+                image=forms.cleaned_data.get("image"),
+                price=forms.cleaned_data.get("price"),
+            )
+            return redirect("/products/")
+        return HttpResponse("Error")
 
 
 def base(request):

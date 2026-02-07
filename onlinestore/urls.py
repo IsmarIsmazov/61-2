@@ -26,6 +26,14 @@ from product.views import (
     product_detail,
     product_list,
 )
+from users.views import login_user, logout_user, register
+
+users = [
+    path("register/", register),
+    path("login/", login_user),
+    path("logout/", logout_user),
+]
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,4 +41,5 @@ urlpatterns = [
     path("products/", product_list),
     path("products/<int:product_id>/", product_detail),
     path("product_create/", product_create),
+    *users,
 ] + static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
