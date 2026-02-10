@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from product.forms import CreateProductForm
+from product.forms import CreateProductForm, SearchForm
 from product.models import Category, Product
 
 # select * from product;
@@ -28,11 +29,29 @@ from product.models import Category, Product
 def product_list(request):
     if request.method == "GET":
         products = Product.objects.all()
+        forms = SearchForm()
+        if request.GET.get("search"):
+            search = request.GET.get("search")
+
+            products = Product.objects.filter(
+                Q(name__icontains=search) | Q(description__icontains=search)
+            )
         category_id = request.GET.get("category_id")
         if category_id:
             products = Product.objects.filter(category_id=category_id)
+        price_choice = request.GET.get("price_choice")
+        if price_choice:
+            if price_choice == "1":
+                products = Product.objects.filter(price__gt=100)
+            elif price_choice == "2":
+                products = Product.objects.filter(price__lt=100)
+        tags = request.GET.getlist("tags")
+        if tags:
+            products = Product.objects.filter(tags__in=tags)
         return render(
-            request, "products/product_list.html", context={"products": products}
+            request,
+            "products/product_list.html",
+            context={"products": products, "forms": forms},
         )
 
 

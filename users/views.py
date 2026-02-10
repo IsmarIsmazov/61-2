@@ -11,7 +11,6 @@ from .forms import LoginForms, RegisterForms
 # Авторизация - проверка прав доступа пользователя 
 # Регистрация - создание нового пользователя
 
-
 def register(request):
     if request.method == "GET":
         forms = RegisterForms()
