@@ -22,16 +22,19 @@ from django.urls import path
 
 from product.views import (
     base,
+    delete_product,
     product_create,
     product_detail,
     product_list,
 )
-from users.views import login_user, logout_user, register
+from users.views import login_user, logout_user, profile, register, update_profile
 
 users = [
     path("register/", register),
     path("login/", login_user),
     path("logout/", logout_user),
+    path("profile/", profile),
+    path("update_profile/", update_profile),
 ]
 
 
@@ -41,5 +44,6 @@ urlpatterns = [
     path("products/", product_list),
     path("products/<int:product_id>/", product_detail),
     path("product_create/", product_create),
+    path("product_delete/<int:product_id>/", delete_product),
     *users,
 ] + static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

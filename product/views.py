@@ -1,3 +1,5 @@
+import math
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
@@ -25,8 +27,20 @@ from product.models import Category, Product
 
 
 # Product.objects.delete()
+
+
+# Product.objects.all() -> products = [product1, product2, product3, product4, product5, product6, product7, product8, product9, product10]
+# limit = 3
+# page = 1
+# product = products[(page-1)*limit:page*limit]
+# max_page = int(len(products)/limit)
+# срезы = [start:stop]
+#
+
+
 @login_required(login_url="/login/")
 def product_list(request):
+    limit = 3
     if request.method == "GET":
         products = Product.objects.all()
         forms = SearchForm()
@@ -48,10 +62,17 @@ def product_list(request):
         tags = request.GET.getlist("tags")
         if tags:
             products = Product.objects.filter(tags__in=tags)
+
+        page = int(request.GET.get("page")) if request.GET.get("page") else 1
+        max_page = math.ceil(len(products) / limit)
+        start = (page - 1) * limit
+        stop = page * limit
+        list_pages = range(1, max_page + 1)
+        products = products[start:stop]
         return render(
             request,
             "products/product_list.html",
-            context={"products": products, "forms": forms},
+            context={"products": products, "forms": forms, "list_pages": list_pages},
         )
 
 
@@ -64,8 +85,32 @@ def product_detail(request, product_id):
         )
 
 
+# @login_required(login_url="/login/")
+# def product_create(request):
+#     user = request.user
+#     if user.is_staff: # permission for admin
+#         if request.method == "GET":
+#             forms = CreateProductForm()
+#             return render(
+#                 request, "products/product_create.html", context={"forms": forms}
+#             )
+#         elif request.method == "POST":
+#             forms = CreateProductForm(request.POST, request.FILES)
+#             if forms.is_valid():
+#                 Product.objects.create(
+#                     name=forms.cleaned_data.get("name"),
+#                     description=forms.cleaned_data.get("description"),
+#                     image=forms.cleaned_data.get("image"),
+#                     price=forms.cleaned_data.get("price"),
+#                 )
+#                 return redirect("/products/")
+#             return HttpResponse("Error")
+#     return HttpResponse("Permission denied")
+
+
 @login_required(login_url="/login/")
 def product_create(request):
+
     if request.method == "GET":
         forms = CreateProductForm()
         return render(request, "products/product_create.html", context={"forms": forms})
@@ -73,6 +118,7 @@ def product_create(request):
         forms = CreateProductForm(request.POST, request.FILES)
         if forms.is_valid():
             Product.objects.create(
+                profile=request.user.profile,
                 name=forms.cleaned_data.get("name"),
                 description=forms.cleaned_data.get("description"),
                 image=forms.cleaned_data.get("image"),
@@ -80,6 +126,14 @@ def product_create(request):
             )
             return redirect("/products/")
         return HttpResponse("Error")
+
+
+def delete_product(request, product_id):
+    product = Product.objects.get(id=product_id)
+    if request.user.profile != product.profile:
+        return HttpResponse("Permission denied")
+    product.delete()
+    return redirect("/products/")
 
 
 def base(request):

@@ -29,3 +29,6 @@ class SearchForm(forms.Form):
     price_choice = forms.ChoiceField(choices=choice_list, required=False)
     tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
     for_test = forms.MultipleChoiceField(choices=for_test_list, required=False)
+
+
+

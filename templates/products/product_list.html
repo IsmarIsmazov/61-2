@@ -19,9 +19,21 @@
         <p class="card-text">{{ product.description }}</p>
         <p class="card-text">{{ product.price }}</p>
         <a href="{{product.id}}" class="btn btn-primary">Посмотреть</a>
-
+        <a href="/product_delete/{{product.id}}" class="btn btn-primary">Удалить</a>
     </div>
 </div>
-
 {% endfor %}
+
+
+<nav aria-label="...">
+    <ul class="pagination pagination-lg">
+        {% for page in list_pages %}
+        <li class="page-item">
+            <a class="page-link" aria-current="page" href="/products/?page={{ page }}">{{ page }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>
+
+
 {% endblock %}
