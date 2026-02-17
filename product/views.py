@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.views.generic import CreateView, ListView
 
 from product.forms import CreateProductForm, SearchForm
 from product.models import Category, Product
@@ -36,6 +37,50 @@ from product.models import Category, Product
 # max_page = int(len(products)/limit)
 # срезы = [start:stop]
 #
+# FBV -> Function Based View
+# CBV -> Class Based View
+
+
+class ProductListView(ListView):
+    model = Product
+    template_name = "products/product_list.html"
+    context_object_name = "products"
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["forms"] = SearchForm()
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) | Q(description__icontains=search)
+            )
+        category_id = self.request.GET.get("category_id")
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        price_choice = self.request.GET.get("price_choice")
+        if price_choice:
+            if price_choice == "1":
+                queryset = queryset.filter(price__gt=100)
+            elif price_choice == "2":
+                queryset = queryset.filter(price__lt=100)
+        tags = self.request.GET.getlist("tags")
+        if tags:
+            queryset = queryset.filter(tags__in=tags)
+        return queryset
+    
+
+class ProductCreateView(CreateView):
+    model = Product
+    template_name = "products/product_create.html"
+    form_class = CreateProductForm
+    success_url = "/class/products/"
+    
+
 
 
 @login_required(login_url="/login/")

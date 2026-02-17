@@ -21,6 +21,8 @@ from django.contrib import admin
 from django.urls import path
 
 from product.views import (
+    ProductCreateView,
+    ProductListView,
     base,
     delete_product,
     product_create,
@@ -28,6 +30,11 @@ from product.views import (
     product_list,
 )
 from users.views import login_user, logout_user, profile, register, update_profile
+
+class_urls = [
+    path("class/products/", ProductListView.as_view()),
+    path("class/product_create/", ProductCreateView.as_view()),
+]
 
 users = [
     path("register/", register),
@@ -46,4 +53,5 @@ urlpatterns = [
     path("product_create/", product_create),
     path("product_delete/<int:product_id>/", delete_product),
     *users,
+    *class_urls
 ] + static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
